@@ -55,7 +55,7 @@ pub fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
     if pretty_print {
         let contents = decoded_blob.split('\0').nth(1);
         if contents.is_some() {
-            println!("{}", contents.unwrap());
+            print!("{}", contents.unwrap());
         }
     }
 
