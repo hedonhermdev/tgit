@@ -41,10 +41,10 @@ pub fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
         bail!("Invalid SHA: {}", &object_sha);
     }
 
-    let (dir, file) = object_sha.split_at(3);
+    let (dir, file) = object_sha.split_at(2);
 
     let mut path_to_file = PathBuf::new();
-    path_to_file.push(".git");
+    path_to_file.push(".git/objects");
     path_to_file.push(dir);
     path_to_file.push(file);
 
@@ -53,7 +53,10 @@ pub fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
     let decoded_blob = decode_reader(blob)?;
 
     if pretty_print {
-        print!("{}", decoded_blob);
+        let contents = decoded_blob.split('\0').nth(1);
+        if contents.is_some() {
+            println!("{}", contents.unwrap());
+        }
     }
 
     Ok(())
