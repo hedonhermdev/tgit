@@ -43,7 +43,8 @@ pub fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
 
     let (dir, file) = object_sha.split_at(3);
 
-    let mut path_to_file = PathBuf::new(".git");
+    let mut path_to_file = PathBuf::new();
+    path_to_file.push(".git");
     path_to_file.push(dir);
     path_to_file.push(file);
 
