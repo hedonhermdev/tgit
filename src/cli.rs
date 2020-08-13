@@ -20,6 +20,15 @@ pub enum CLI {
         #[structopt(name = "OBJECT SHA")]
         object_sha: String,
     },
+
+    #[structopt(name = "hash-object", about = "Hash the contents of the given file to a git object")]
+    HashObject {
+        #[structopt(name = "FILE")]
+        file: PathBuf,
+
+        #[structopt(name = "write", short = "w")]
+        write: bool,
+    }
 }
 
 impl CLI {
@@ -28,7 +37,8 @@ impl CLI {
 
         match args {
             CLI::Init{git_dir} => commands::init(git_dir),
-            CLI::CatFile{pretty_print, object_sha} => commands::cat_file(pretty_print, object_sha)
+            CLI::CatFile{pretty_print, object_sha} => commands::cat_file(pretty_print, object_sha),
+            CLI::HashObject{file, write} => commands::hash_object(file, write)
         }
     }
 }
