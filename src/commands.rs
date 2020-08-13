@@ -1,5 +1,7 @@
 use anyhow::{bail, Result};
 use flate2::read::ZlibDecoder;
+use flate2::Compression;
+use flate2::write::ZlibEncoder;
 use sha1::{Sha1, Digest};
 use std::fs;
 use std::io::prelude::*;
@@ -11,6 +13,15 @@ fn decode_reader(bytes: Vec<u8>) -> Result<String> {
     let mut s = String::new();
     z.read_to_string(&mut s)?;
     Ok(s)
+}
+
+fn encode_writer(content: &[u8]) -> Result<Vec<u8>>{
+    let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
+    encoder.write_all(content)?;
+
+    let compressed = encoder.finish()?;
+
+    Ok(compressed)
 }
 
 pub fn init(git_dir: Option<PathBuf>) -> Result<()> {
@@ -75,10 +86,9 @@ pub fn hash_object(file: PathBuf, write: bool) -> Result<()> {
     blob_contents.push(' ');
     blob_contents.push_str(&size);
     blob_contents.push('\0');
-
     let mut blob_contents = blob_contents.into_bytes();
     blob_contents.append(&mut contents);
-    
+
     let blob_hash = Sha1::digest(&blob_contents);
     let blob_hex = hex::encode(blob_hash);
 
@@ -95,7 +105,9 @@ pub fn hash_object(file: PathBuf, write: bool) -> Result<()> {
 
         path.push(filename);
 
-        fs::write(&path, blob_contents)?;
+        let encoded_content = encode_writer(&blob_contents)?;
+
+        fs::write(&path, encoded_content)?;
     }
 
     Ok(())
