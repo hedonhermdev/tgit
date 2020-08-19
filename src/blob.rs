@@ -67,6 +67,10 @@ impl Blob {
         })
     }
 
+    pub fn encoded_hash(&self) -> String {
+        hex::encode(&self.sha1_hash)
+    }
+
     pub fn write(&self) -> Result<PathBuf>{
 
         let mut file_contents = String::new();

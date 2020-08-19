@@ -47,6 +47,7 @@ pub fn hash_object(file: PathBuf, write: bool) -> Result<()> {
     if write {
         blob.write()?;
     }
+    print!("{}", blob.encoded_hash());
 
     Ok(())
 }
