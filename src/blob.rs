@@ -14,18 +14,18 @@ pub struct Blob {
 
 impl Blob {
     pub fn new(file: PathBuf) -> Result<Self> {
-        let mut contents = fs::read(file)?;
-        let size = contents.len().to_string();
-        let object_type = String::from("blob");
+        let mut file_data = fs::read(file)?;
+        let size = file_data.len().to_string();
 
-        let mut blob_contents = String::new();
+        let contents = file_data.clone();
         
-        blob_contents.push_str(&object_type);
+        let mut blob_contents = String::new();
+        blob_contents.push_str("blob");
         blob_contents.push(' ');
         blob_contents.push_str(&size);
         blob_contents.push('\0');
         let mut blob_contents = blob_contents.into_bytes();
-        blob_contents.append(&mut contents);
+        blob_contents.append(&mut file_data);
         let sha1_hash = Sha1::digest(&blob_contents);
         let sha1_hash: [u8; 20] = sha1_hash.try_into()?;
 
@@ -72,7 +72,6 @@ impl Blob {
     }
 
     pub fn write(&self) -> Result<PathBuf>{
-
         let mut file_contents = String::new();
 
         file_contents.push_str("blob");
@@ -91,7 +90,6 @@ impl Blob {
         path.push(dirname);
 
         fs::create_dir_all(&path)?;
-
         path.push(filename);
 
         let encoded_content = utils::zlib_compress(&file_contents)?;
