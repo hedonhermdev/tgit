@@ -72,7 +72,7 @@ impl Tree {
 
             let mut name = Vec::new();
             cursor.read_until(0x00, &mut name)?;
-            let name = String::from_utf8(name)?;
+            let mut name = String::from_utf8(name)?;
             name.pop();
 
             let mut sha1_hash: [u8; 20] = [0; 20];
