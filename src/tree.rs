@@ -3,7 +3,7 @@ use std::io::{Read, BufRead, Cursor};
 use std::path::PathBuf;
 use crate::utils;
 use std::fmt;
-use std::fmt::splay;
+use std::fmt::Display;
 
 #[derive(Debug, Clone)]
 pub struct Tree {
