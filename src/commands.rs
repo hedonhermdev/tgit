@@ -56,7 +56,7 @@ pub fn list_tree(tree_sha: String, name_only: bool) -> Result<()> {
     let tree = Tree::from_tree_sha(tree_sha)?;
     
     if name_only {
-        print!("{}", tree);
+        println!("{}", tree);
     }
 
     Ok(())
