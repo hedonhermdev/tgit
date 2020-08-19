@@ -35,7 +35,7 @@ pub fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
     let blob = Blob::from_object_sha(object_sha)?;
     
     if pretty_print {
-        println!("{}", blob);
+        print!("{}", blob);
     }
 
     Ok(())
