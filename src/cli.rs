@@ -28,7 +28,16 @@ pub enum CLI {
 
         #[structopt(name = "write", short = "w")]
         write: bool,
-    }
+    },
+
+    #[structopt(name = "ls-tree", about = "List a git tree")]
+    ListTree {
+        #[structopt(name= "TREE SHA")]
+        tree_sha: String,
+
+        #[structopt(long = "name-only")]
+        name_only: bool,
+    },
 }
 
 impl CLI {
@@ -38,7 +47,8 @@ impl CLI {
         match args {
             CLI::Init{git_dir} => commands::init(git_dir),
             CLI::CatFile{pretty_print, object_sha} => commands::cat_file(pretty_print, object_sha),
-            CLI::HashObject{file, write} => commands::hash_object(file, write)
+            CLI::HashObject{file, write} => commands::hash_object(file, write),
+            CLI::ListTree{tree_sha, name_only} => commands::list_tree(tree_sha, name_only),
         }
     }
 }
