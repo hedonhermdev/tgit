@@ -1,5 +1,5 @@
 use anyhow::{ Result, bail };
-use std::io::{self, Read, BufRead, Cursor};
+use std::io::{Read, BufRead, Cursor};
 use std::path::PathBuf;
 use crate::utils;
 use std::fmt;

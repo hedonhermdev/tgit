@@ -1,4 +1,4 @@
-use anyhow::{bail, Result, Context};
+use anyhow::Result;
 use std::fs;
 use std::path::PathBuf;
 
@@ -54,7 +54,9 @@ pub fn hash_object(file: PathBuf, write: bool) -> Result<()> {
 pub fn list_tree(tree_sha: String, name_only: bool) -> Result<()> {
     let tree = Tree::from_tree_sha(tree_sha)?;
     
-    println!("{}", tree);
+    if name_only {
+        print!("{}", tree);
+    }
 
     Ok(())
 }

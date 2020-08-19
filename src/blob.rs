@@ -52,7 +52,7 @@ impl Blob {
         
         let contents_ref = blob_data.split(|x| *x == 0x00u8).nth(1);
         
-        let mut contents: Vec<u8>;
+        let contents: Vec<u8>;
         if contents_ref.is_some() {
             contents = contents_ref.unwrap().to_vec();
         } else {

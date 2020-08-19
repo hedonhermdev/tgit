@@ -28,7 +28,7 @@ pub fn zlib_compress(content: &[u8]) -> Result<Vec<u8>> {
 
 pub fn decode_hash(sha1_hash: String) -> [u8; 20] {
     let mut hash_decoded: [u8; 20] = [0; 20];
-    hex::decode_to_slice(sha1_hash, &mut hash_decoded[..]);
+    hex::decode_to_slice(sha1_hash, &mut hash_decoded[..]).expect("Invalid hex");
 
     return hash_decoded
 }
