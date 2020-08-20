@@ -180,6 +180,8 @@ impl Tree {
         let sha1_hash = Sha1::digest(&data);
         let sha1_hash: [u8; 20] = sha1_hash.try_into()?;
 
+        entries.sort_by(|a, b| a.name.cmp(&b.name));
+
         Ok(Self { entries, sha1_hash })
     }
 
