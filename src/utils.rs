@@ -7,6 +7,8 @@ use std::fs;
 use std::io::{Read, Write};
 use std::path::PathBuf;
 
+use chrono;
+
 pub fn zlib_decompress(path: PathBuf) -> Result<Vec<u8>> {
     let bytes = fs::read(path).context("Failed to read file")?;
 
@@ -31,4 +33,12 @@ pub fn decode_hash(sha1_hash: String) -> [u8; 20] {
     hex::decode_to_slice(sha1_hash, &mut hash_decoded[..]).expect("Invalid hex");
 
     return hash_decoded;
+}
+
+pub fn get_time_data() -> (String, String) {
+    let now = chrono::Local::now();
+    let timestamp = now.timestamp().to_string();
+    let offset = now.offset().utc_minus_local().to_string();
+
+    return (timestamp, offset)
 }

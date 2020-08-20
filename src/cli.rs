@@ -46,6 +46,17 @@ pub enum CLI {
 
     #[structopt(name = "write-tree", about = "Write the working tree")]
     WriteTree,
+
+    CommitTree {
+        #[structopt(name = "TREE SHA")]
+        tree_sha: String,
+
+        #[structopt(name = "parent_sha", short = "p")]
+        parent_sha: String,
+        
+        #[structopt(name = "message", short = "m")]
+        message: String
+    }
 }
 
 impl CLI {
@@ -64,6 +75,7 @@ impl CLI {
                 name_only,
             } => commands::list_tree(tree_sha, name_only),
             CLI::WriteTree => commands::write_tree(),
+            CLI::CommitTree{tree_sha, parent_sha, message} => commands::commit_tree(tree_sha, parent_sha, message),
         }
     }
 }

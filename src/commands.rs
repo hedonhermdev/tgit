@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use crate::blob::Blob;
 use crate::tree::Tree;
+use crate::commit::{Commit, User};
 
 pub fn init(git_dir: Option<PathBuf>) -> Result<()> {
     let mut git_dir = git_dir;
@@ -67,6 +68,19 @@ pub fn write_tree() -> Result<()> {
     tree.write()?;
 
     println!("{}", tree.encoded_sha());
+
+    Ok(())
+}
+
+pub fn commit_tree(tree_sha: String, parent_sha: String, message: String) -> Result<()> {
+    let name = String::from("Tirth Jain");
+    let email = String::from("jaintirth24@gmail.com");
+
+    let commit = Commit::new(tree_sha, parent_sha, message, name, email)?;
+
+    commit.write()?;
+
+    println!("{}", commit.encoded_sha());
 
     Ok(())
 }
