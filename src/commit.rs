@@ -126,6 +126,17 @@ impl Commit {
         Ok(())
     }
 
+    pub fn update_refs(&self) -> Result<()> {
+        let mut path = PathBuf::from(".git/refs/heads");
+        fs::create_dir_all(&path)?;
+        path.push("master");
+        
+        let contents = self.encoded_sha();
+        fs::write(path, contents)?;
+
+        Ok(())
+    }
+
     pub fn encoded_sha(&self) -> String {
         
         hex::encode(&self.sha1_hash)

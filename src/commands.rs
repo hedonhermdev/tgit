@@ -79,6 +79,7 @@ pub fn commit_tree(tree_sha: String, parent_sha: String, message: String) -> Res
     let commit = Commit::new(tree_sha, parent_sha, message, name, email)?;
 
     commit.write()?;
+    commit.update_refs()?;
 
     println!("{}", commit.encoded_sha());
 
