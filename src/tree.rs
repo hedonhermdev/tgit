@@ -211,8 +211,6 @@ impl Tree {
         data.push(0x00u8);
         data.extend(entries_data);
 
-        println!("{}", String::from_utf8_lossy(&data));
-
         data
     }
 
