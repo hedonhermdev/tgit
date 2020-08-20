@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use crate::blob::Blob;
 use crate::tree::Tree;
-use crate::commit::{Commit, User};
+use crate::commit::Commit;
 
 pub fn init(git_dir: Option<PathBuf>) -> Result<()> {
     let mut git_dir = git_dir;

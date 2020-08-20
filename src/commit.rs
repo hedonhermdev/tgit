@@ -33,8 +33,6 @@ impl Commit {
         let tree_sha = utils::decode_hash(tree_sha);
         let parent_sha = utils::decode_hash(parent_sha);
 
-        let commit_data = String::new();
-
         let encoded_tree_sha = hex::encode(tree_sha);
 
         let (timestamp, tz_offset) = utils::get_time_data();
@@ -82,7 +80,6 @@ impl Commit {
     }
 
     pub fn write(&self) -> Result<()> {
-        let commit_data = String::new();
 
         let encoded_tree_sha = hex::encode(self.tree_sha);
 
