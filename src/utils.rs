@@ -1,11 +1,11 @@
-use anyhow::{ Result, Context };
+use anyhow::{Context, Result};
 use flate2::read::ZlibDecoder;
-use flate2::Compression;
 use flate2::write::ZlibEncoder;
-use std::path::PathBuf;
-use std::fs;
-use std::io::{ Read, Write };
+use flate2::Compression;
 use hex;
+use std::fs;
+use std::io::{Read, Write};
+use std::path::PathBuf;
 
 pub fn zlib_decompress(path: PathBuf) -> Result<Vec<u8>> {
     let bytes = fs::read(path).context("Failed to read file")?;
@@ -30,5 +30,5 @@ pub fn decode_hash(sha1_hash: String) -> [u8; 20] {
     let mut hash_decoded: [u8; 20] = [0; 20];
     hex::decode_to_slice(sha1_hash, &mut hash_decoded[..]).expect("Invalid hex");
 
-    return hash_decoded
+    return hash_decoded;
 }

@@ -2,9 +2,8 @@ use anyhow::Result;
 use std::fs;
 use std::path::PathBuf;
 
-use crate::tree::Tree;
 use crate::blob::Blob;
-
+use crate::tree::Tree;
 
 pub fn init(git_dir: Option<PathBuf>) -> Result<()> {
     let mut git_dir = git_dir;
@@ -33,7 +32,7 @@ pub fn init(git_dir: Option<PathBuf>) -> Result<()> {
 
 pub fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
     let blob = Blob::from_object_sha(object_sha)?;
-    
+
     if pretty_print {
         print!("{}", blob);
     }
@@ -54,10 +53,20 @@ pub fn hash_object(file: PathBuf, write: bool) -> Result<()> {
 
 pub fn list_tree(tree_sha: String, name_only: bool) -> Result<()> {
     let tree = Tree::from_tree_sha(tree_sha)?;
-    
+
     if name_only {
         println!("{}", tree);
     }
+
+    Ok(())
+}
+
+pub fn write_tree() -> Result<()> {
+    let tree = Tree::from_directory(PathBuf::from("./"))?;
+
+    tree.write()?;
+
+    println!("{}", tree.encoded_sha());
 
     Ok(())
 }

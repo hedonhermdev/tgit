@@ -1,15 +1,15 @@
-use anyhow::{Result, bail};
-use std::path::PathBuf;
-use sha1::{Sha1, Digest};
 use crate::utils;
-use std::fs;
+use anyhow::{bail, Result};
+use sha1::{Digest, Sha1};
+use std::convert::TryInto;
 use std::fmt;
 use std::fmt::Display;
-use std::convert::TryInto;
+use std::fs;
+use std::path::PathBuf;
 
 pub struct Blob {
     contents: Vec<u8>,
-    sha1_hash: [u8; 20]
+    sha1_hash: [u8; 20],
 }
 
 impl Blob {
@@ -18,7 +18,7 @@ impl Blob {
         let size = file_data.len().to_string();
 
         let contents = file_data.clone();
-        
+
         let mut blob_contents = String::new();
         blob_contents.push_str("blob");
         blob_contents.push(' ');
@@ -31,9 +31,8 @@ impl Blob {
 
         return Ok(Self {
             contents,
-            sha1_hash
-        })
-
+            sha1_hash,
+        });
     }
 
     pub fn from_object_sha(object_sha: String) -> Result<Self> {
@@ -49,9 +48,9 @@ impl Blob {
         path_to_file.push(file);
 
         let blob_data = utils::zlib_decompress(path_to_file)?;
-        
+
         let contents_ref = blob_data.split(|x| *x == 0x00u8).nth(1);
-        
+
         let contents: Vec<u8>;
         if contents_ref.is_some() {
             contents = contents_ref.unwrap().to_vec();
@@ -63,15 +62,22 @@ impl Blob {
 
         Ok(Self {
             contents,
-            sha1_hash
+            sha1_hash,
         })
+    }
+
+    pub fn sha1_hash(&self) -> [u8; 20] {
+        let mut hash: [u8; 20] = [0; 20];
+        hash.copy_from_slice(&self.sha1_hash);
+
+        hash
     }
 
     pub fn encoded_hash(&self) -> String {
         hex::encode(&self.sha1_hash)
     }
 
-    pub fn write(&self) -> Result<PathBuf>{
+    pub fn write(&self) -> Result<PathBuf> {
         let mut file_contents = String::new();
 
         file_contents.push_str("blob");
@@ -98,9 +104,7 @@ impl Blob {
 
         Ok(path)
     }
-
 }
-
 
 impl Display for Blob {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

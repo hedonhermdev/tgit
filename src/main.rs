@@ -3,14 +3,14 @@ use std::env;
 #[allow(unused_imports)]
 use std::fs;
 
-mod commands;
-mod cli;
-mod tree;
 mod blob;
+mod cli;
+mod commands;
+mod tree;
 mod utils;
 
 use anyhow::Result;
 
-fn main() -> Result<()>{
+fn main() -> Result<()> {
     cli::CLI::run()
 }
