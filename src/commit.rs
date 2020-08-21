@@ -87,7 +87,7 @@ impl Commit {
         let encoded_parent_sha = hex::encode(self.parent_sha);
 
         let formatted_string = format!(
-            "tree {}\nparent {}\nauthor {} <{}> {} {}\ncommitter {} <{}> {} {}\n\n{}",
+            "tree {}\nparent {}\nauthor {} <{}> {} {}\ncommitter {} <{}> {} {}\n\n{}\n",
             encoded_tree_sha,
             encoded_parent_sha,
             self.author.name,
@@ -109,9 +109,6 @@ impl Commit {
         data.extend_from_slice(length.as_bytes());
         data.push(0x00);
         data.extend_from_slice(formatted_string.as_bytes());
-
-        let sha1_hash = Sha1::digest(&data);
-        let sha1_hash: [u8; 20] = sha1_hash.try_into()?;
 
         let sha1_hex = hex::encode(self.sha1_hash);
         let (dirname, filename) = sha1_hex.split_at(2);
