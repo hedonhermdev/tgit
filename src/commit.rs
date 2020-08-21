@@ -34,6 +34,7 @@ impl Commit {
         let parent_sha = utils::decode_hash(parent_sha);
 
         let encoded_tree_sha = hex::encode(tree_sha);
+        let encoded_parent_sha = hex::encode(parent_sha);
 
         let (timestamp, tz_offset) = utils::get_time_data();
 
@@ -41,8 +42,9 @@ impl Commit {
         let committer = author.clone();
 
         let formatted_string = format!(
-            "tree {}\nauthor {} <{}> {} {}\ncommitter {} <{}> {} {}\n\n{}",
+            "tree {}\nparent {}\nauthor {} <{}> {} {}\ncommitter {} <{}> {} {}\n\n{}",
             encoded_tree_sha,
+            encoded_parent_sha,
             author.name,
             author.email,
             timestamp,
@@ -82,10 +84,12 @@ impl Commit {
     pub fn write(&self) -> Result<()> {
 
         let encoded_tree_sha = hex::encode(self.tree_sha);
+        let encoded_parent_sha = hex::encode(self.parent_sha);
 
         let formatted_string = format!(
-            "tree {}\nauthor {} <{}> {} {}\ncommitter {} <{}> {} {}\n\n{}",
+            "tree {}\nparent {}\nauthor {} <{}> {} {}\ncommitter {} <{}> {} {}\n\n{}",
             encoded_tree_sha,
+            encoded_parent_sha,
             self.author.name,
             self.author.email,
             self.timestamp,
