@@ -1,5 +1,5 @@
 use crate::utils;
-use anyhow::{bail, Result, Error};
+use anyhow::{bail, Result};
 use sha1::{Digest, Sha1};
 use std::convert::TryInto;
 use std::fmt;
@@ -8,7 +8,6 @@ use tokio::fs;
 use std::io::{BufRead, Cursor, Read};
 use std::os::unix::fs::MetadataExt;
 use std::path::PathBuf;
-use futures::future::{BoxFuture, FutureExt};
 use async_recursion::async_recursion;
 
 
