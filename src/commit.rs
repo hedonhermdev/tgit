@@ -30,8 +30,8 @@ impl Commit {
         name: String,
         email: String,
     ) -> Result<Self> {
-        let tree_sha = utils::decode_hash(tree_sha);
-        let parent_sha = utils::decode_hash(parent_sha);
+        let tree_sha = utils::decode_hash(&tree_sha);
+        let parent_sha = utils::decode_hash(&parent_sha);
 
         let encoded_tree_sha = hex::encode(tree_sha);
         let encoded_parent_sha = hex::encode(parent_sha);

@@ -56,26 +56,37 @@ pub enum CLI {
         
         #[structopt(name = "message", short = "m")]
         message: String
+    },
+
+    #[structopt(name = "clone", about = "Clone a remote repository")]
+    Clone {
+        
+        #[structopt(name = "URL")]
+        url: String,
+        
+        #[structopt(name = "CLONE DIR")]
+        clone_dir: PathBuf
     }
 }
 
 impl CLI {
-    pub fn run() -> Result<()> {
+    pub async fn run() -> Result<()> {
         let args: Self = Self::from_args();
 
         match args {
-            CLI::Init { git_dir } => commands::init(git_dir),
+            CLI::Init { git_dir } => commands::init(git_dir).await,
             CLI::CatFile {
                 pretty_print,
                 object_sha,
-            } => commands::cat_file(pretty_print, object_sha),
-            CLI::HashObject { file, write } => commands::hash_object(file, write),
+            } => commands::cat_file(pretty_print, object_sha).await,
+            CLI::HashObject { file, write } => commands::hash_object(file, write).await,
             CLI::ListTree {
                 tree_sha,
                 name_only,
-            } => commands::list_tree(tree_sha, name_only),
-            CLI::WriteTree => commands::write_tree(),
-            CLI::CommitTree{tree_sha, parent_sha, message} => commands::commit_tree(tree_sha, parent_sha, message),
+            } => commands::list_tree(tree_sha, name_only).await,
+            CLI::WriteTree => commands::write_tree().await,
+            CLI::CommitTree{tree_sha, parent_sha, message} => commands::commit_tree(tree_sha, parent_sha, message).await,
+            CLI::Clone{url, clone_dir} => commands::clone(url, clone_dir).await,
         }
     }
 }

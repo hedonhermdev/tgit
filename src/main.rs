@@ -4,9 +4,11 @@ mod commands;
 mod tree;
 mod commit;
 mod utils;
+mod clone;
 
 use anyhow::Result;
 
-fn main() -> Result<()> {
-    cli::CLI::run()
+#[tokio::main]
+async fn main() -> Result<()> {
+    cli::CLI::run().await
 }

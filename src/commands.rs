@@ -1,12 +1,13 @@
 use anyhow::Result;
-use std::fs;
+use tokio::fs;
 use std::path::PathBuf;
 
 use crate::blob::Blob;
 use crate::tree::Tree;
 use crate::commit::Commit;
+use crate::clone::CloneClient;
 
-pub fn init(git_dir: Option<PathBuf>) -> Result<()> {
+pub async fn init(git_dir: Option<PathBuf>) -> Result<()> {
     let mut git_dir = git_dir;
 
     if git_dir.is_none() {
@@ -15,24 +16,24 @@ pub fn init(git_dir: Option<PathBuf>) -> Result<()> {
 
     let mut path = git_dir.unwrap();
 
-    fs::create_dir(&path)?; // .git
+    fs::create_dir(&path).await?; // .git
 
     path.push("objects");
-    fs::create_dir(&path)?; // .git/objects
+    fs::create_dir(&path).await?; // .git/objects
 
     path.pop();
     path.push("refs");
-    fs::create_dir(&path)?; // .git/refs
+    fs::create_dir(&path).await?; // .git/refs
 
     path.pop();
     path.push("HEAD");
-    fs::write(path, "ref: refs/heads/master\n")?; // .git/HEAD
+    fs::write(path, "ref: refs/heads/master\n").await?; // .git/HEAD
 
     Ok(())
 }
 
-pub fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
-    let blob = Blob::from_object_sha(object_sha)?;
+pub async fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
+    let blob = Blob::from_object_sha(object_sha).await?;
 
     if pretty_print {
         print!("{}", blob);
@@ -41,19 +42,19 @@ pub fn cat_file(pretty_print: bool, object_sha: String) -> Result<()> {
     Ok(())
 }
 
-pub fn hash_object(file: PathBuf, write: bool) -> Result<()> {
-    let blob = Blob::new(file)?;
+pub async fn hash_object(file: PathBuf, write: bool) -> Result<()> {
+    let blob = Blob::new(file).await?;
 
     if write {
-        blob.write()?;
+        blob.write().await?;
     }
     print!("{}", blob.encoded_hash());
 
     Ok(())
 }
 
-pub fn list_tree(tree_sha: String, name_only: bool) -> Result<()> {
-    let tree = Tree::from_tree_sha(tree_sha)?;
+pub async fn list_tree(tree_sha: String, name_only: bool) -> Result<()> {
+    let tree = Tree::from_tree_sha(tree_sha).await?;
 
     if name_only {
         println!("{}", tree);
@@ -62,17 +63,17 @@ pub fn list_tree(tree_sha: String, name_only: bool) -> Result<()> {
     Ok(())
 }
 
-pub fn write_tree() -> Result<()> {
-    let tree = Tree::from_directory(PathBuf::from("./"))?;
+pub async fn write_tree() -> Result<()> {
+    let tree = Tree::from_directory(PathBuf::from("./")).await?;
 
-    tree.write()?;
+    tree.write().await?;
 
     println!("{}", tree.encoded_sha());
 
     Ok(())
 }
 
-pub fn commit_tree(tree_sha: String, parent_sha: String, message: String) -> Result<()> {
+pub async fn commit_tree(tree_sha: String, parent_sha: String, message: String) -> Result<()> {
     let name = String::from("Tirth Jain");
     let email = String::from("jaintirth24@gmail.com");
 
@@ -82,6 +83,14 @@ pub fn commit_tree(tree_sha: String, parent_sha: String, message: String) -> Res
     commit.update_refs()?;
 
     println!("{}", commit.encoded_sha());
+
+    Ok(())
+}
+
+pub async fn clone(url: String, clone_dir: PathBuf) -> Result<()> {
+    let client = CloneClient::new();
+
+    client.request_refs(url).await?;
 
     Ok(())
 }
