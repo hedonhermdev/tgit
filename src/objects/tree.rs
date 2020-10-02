@@ -1,17 +1,18 @@
-use crate::utils;
 use anyhow::{bail, Result};
+use async_recursion::async_recursion;
 use sha1::{Digest, Sha1};
 use std::convert::TryInto;
 use std::fmt;
 use std::fmt::Display;
-use tokio::fs;
 use std::io::{BufRead, Cursor, Read};
 use std::os::unix::fs::MetadataExt;
 use std::path::PathBuf;
-use async_recursion::async_recursion;
+use tokio::fs;
+use async_trait::async_trait;
 
-
-use crate::blob::Blob;
+use crate::utils;
+use crate::objects::Object;
+use crate::objects::blob::Blob;
 
 #[derive(Debug, Clone)]
 pub struct Tree {
@@ -27,6 +28,7 @@ struct TreeEntry {
     sha1_hash: [u8; 20],
 }
 
+
 impl TreeEntry {
     pub fn new(mode: String, name: String, sha1_hash: [u8; 20]) -> Self {
         TreeEntry {
@@ -36,7 +38,6 @@ impl TreeEntry {
         }
     }
 
-    #[async_recursion]
     pub async fn from_file(path: PathBuf) -> Result<Self> {
         let metadata = path.metadata()?;
 
@@ -64,7 +65,7 @@ impl TreeEntry {
         } else if filetype.is_dir() {
             // dir -> tree (recursion)
             mode.push_str("040000");
-            let tree = Tree::from_directory(path.clone()).await?;
+            let tree = Tree::new(path.clone()).await?;
             sha1_hash = tree.sha1_hash();
         }
 
@@ -95,14 +96,15 @@ impl TreeEntry {
     }
 }
 
-impl Tree {
-    #[async_recursion]
-    pub async fn from_tree_sha(tree_sha: String) -> Result<Self> {
-        if tree_sha.len() != 40 {
+#[async_trait]
+impl Object for Tree {
+
+    async fn from_object_sha(object_sha: String) -> Result<Self> {
+        if object_sha.len() != 40 {
             bail!("Invalid SHA");
         }
 
-        let (dir, file) = tree_sha.split_at(2);
+        let (dir, file) = object_sha.split_at(2);
 
         let mut path_to_file = PathBuf::new();
         path_to_file.push(".git/objects");
@@ -144,18 +146,38 @@ impl Tree {
             entries.push(tree_entry);
         }
 
-        let sha1_hash = utils::decode_hash(&tree_sha);
+        let sha1_hash = utils::decode_hash(&object_sha);
 
-        Ok(Self { entries, sha1_hash, write_data })
+        Ok(Self {
+            entries,
+            sha1_hash,
+            write_data,
+        })
     }
 
+    fn sha1_hash(&self) -> [u8; 20] {
+        let mut hash: [u8; 20] = [0; 20];
+        hash.copy_from_slice(&self.sha1_hash);
+        hash
+    }
+
+    fn write_data(&self) -> &Vec<u8> {
+        &self.write_data
+    }
+}
+
+impl Tree {
+
     #[async_recursion]
-    pub async fn from_directory(path: PathBuf) -> Result<Self> {
+    pub async fn new(path: PathBuf) -> Result<Self> {
         let mut paths: Vec<PathBuf> = Vec::new();
 
         let mut dir = fs::read_dir(path).await?;
         while let Some(entry) = dir.next_entry().await? {
             let fpath = entry.path();
+            if fpath.starts_with("./.git") {
+                continue;
+            }
             paths.push(fpath)
         }
 
@@ -167,39 +189,33 @@ impl Tree {
             entries.push(entry);
         }
 
+        entries.sort_by(|a, b| a.name.cmp(&b.name));
+
+
         let mut entries_data = Vec::new();
 
-        for entry in entries.clone() {
+        for entry in &entries.clone() {
             entries_data.extend(entry.data());
         }
 
         let length = entries_data.len();
 
-        let mut write_data = Vec::new();
+        let mut data = Vec::new();
 
-        write_data.extend_from_slice("tree".as_bytes());
-        write_data.push(0x20u8);
-        write_data.extend_from_slice(length.to_string().as_bytes());
-        write_data.extend(entries_data);
+        data.extend_from_slice("tree".as_bytes());
+        data.push(0x20u8);
+        data.extend_from_slice(length.to_string().as_bytes());
+        data.push(0x00u8);
+        data.extend(entries_data);
+
+        let write_data = data;
 
         let sha1_hash = Sha1::digest(&write_data);
         let sha1_hash: [u8; 20] = sha1_hash.try_into()?;
 
-        entries.sort_by(|a, b| a.name.cmp(&b.name));
-
         Ok(Self { entries, sha1_hash, write_data })
     }
 
-    pub fn sha1_hash(&self) -> [u8; 20] {
-        let mut hash: [u8; 20] = [0; 20];
-        hash.copy_from_slice(&self.sha1_hash);
-
-        hash
-    }
-
-    pub fn encoded_sha(&self) -> String {
-        hex::encode(self.sha1_hash)
-    }
 
     // pub fn data(&self) -> Vec<u8> {
     //     let mut entries_data = Vec::new();
@@ -221,23 +237,6 @@ impl Tree {
     //     data
     // }
 
-    pub async fn write(&self) -> Result<()> {
-        let mut path = PathBuf::from(".git/objects");
-
-        let blob_hex = hex::encode(self.sha1_hash);
-        let (dirname, filename) = blob_hex.split_at(2);
-
-        path.push(dirname);
-
-        fs::create_dir_all(&path).await?;
-        path.push(filename);
-
-
-        let encoded_data = utils::zlib_compress(&self.write_data)?;
-        fs::write(path, encoded_data).await?;
-
-        Ok(())
-    }
 }
 
 impl Display for Tree {

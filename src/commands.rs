@@ -1,11 +1,10 @@
 use anyhow::Result;
-use tokio::fs;
 use std::path::PathBuf;
+use tokio::fs;
 
-use crate::blob::Blob;
-use crate::tree::Tree;
-use crate::commit::Commit;
+use crate::objects::{Object, Blob, Tree, Commit};
 use crate::clone::CloneClient;
+
 
 pub async fn init(git_dir: Option<PathBuf>) -> Result<()> {
     let mut git_dir = git_dir;
@@ -54,7 +53,7 @@ pub async fn hash_object(file: PathBuf, write: bool) -> Result<()> {
 }
 
 pub async fn list_tree(tree_sha: String, name_only: bool) -> Result<()> {
-    let tree = Tree::from_tree_sha(tree_sha).await?;
+    let tree = Tree::from_object_sha(tree_sha).await?;
 
     if name_only {
         println!("{}", tree);
@@ -64,11 +63,11 @@ pub async fn list_tree(tree_sha: String, name_only: bool) -> Result<()> {
 }
 
 pub async fn write_tree() -> Result<()> {
-    let tree = Tree::from_directory(PathBuf::from("./")).await?;
+    let tree = Tree::new(PathBuf::from("./")).await?;
 
     tree.write().await?;
 
-    println!("{}", tree.encoded_sha());
+    println!("{}", tree.encoded_hash());
 
     Ok(())
 }
@@ -79,7 +78,7 @@ pub async fn commit_tree(tree_sha: String, parent_sha: String, message: String) 
 
     let commit = Commit::new(tree_sha, parent_sha, message, name, email)?;
 
-    commit.write()?;
+    commit.write().await?;
     commit.update_refs()?;
 
     println!("{}", commit.encoded_sha());
@@ -88,9 +87,9 @@ pub async fn commit_tree(tree_sha: String, parent_sha: String, message: String) 
 }
 
 pub async fn clone(url: String, clone_dir: PathBuf) -> Result<()> {
-    let client = CloneClient::new();
+    let client = CloneClient::new(url);
 
-    client.request_refs(url).await?;
+    client.clone().await?;
 
     Ok(())
 }

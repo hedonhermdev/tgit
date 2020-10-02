@@ -1,10 +1,9 @@
-mod blob;
 mod cli;
-mod commands;
-mod tree;
-mod commit;
-mod utils;
 mod clone;
+mod commands;
+mod objects;
+mod packfile;
+mod utils;
 
 use anyhow::Result;
 

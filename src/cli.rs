@@ -53,20 +53,19 @@ pub enum CLI {
 
         #[structopt(name = "parent_sha", short = "p")]
         parent_sha: String,
-        
+
         #[structopt(name = "message", short = "m")]
-        message: String
+        message: String,
     },
 
     #[structopt(name = "clone", about = "Clone a remote repository")]
     Clone {
-        
         #[structopt(name = "URL")]
         url: String,
-        
+
         #[structopt(name = "CLONE DIR")]
-        clone_dir: PathBuf
-    }
+        clone_dir: PathBuf,
+    },
 }
 
 impl CLI {
@@ -85,8 +84,12 @@ impl CLI {
                 name_only,
             } => commands::list_tree(tree_sha, name_only).await,
             CLI::WriteTree => commands::write_tree().await,
-            CLI::CommitTree{tree_sha, parent_sha, message} => commands::commit_tree(tree_sha, parent_sha, message).await,
-            CLI::Clone{url, clone_dir} => commands::clone(url, clone_dir).await,
+            CLI::CommitTree {
+                tree_sha,
+                parent_sha,
+                message,
+            } => commands::commit_tree(tree_sha, parent_sha, message).await,
+            CLI::Clone { url, clone_dir } => commands::clone(url, clone_dir).await,
         }
     }
 }

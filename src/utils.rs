@@ -36,5 +36,5 @@ pub fn get_time_data() -> (String, String) {
     let timestamp = now.timestamp().to_string();
     let offset = now.offset().utc_minus_local().to_string();
 
-    return (timestamp, offset)
+    return (timestamp, offset);
 }
