@@ -5,7 +5,7 @@ use std::convert::TryInto;
 use std::fmt;
 use std::fmt::Display;
 use std::io::{BufRead, Cursor, Read};
-use std::os::unix::fs::MetadataExt;
+// use std::os::unix::fs::MetadataExt;
 use std::path::PathBuf;
 use tokio::fs;
 use async_trait::async_trait;
@@ -217,25 +217,6 @@ impl Tree {
     }
 
 
-    // pub fn data(&self) -> Vec<u8> {
-    //     let mut entries_data = Vec::new();
-
-    //     for entry in self.entries.clone() {
-    //         entries_data.extend(entry.data());
-    //     }
-
-    //     let length = entries_data.len();
-
-    //     let mut data = Vec::new();
-
-    //     data.extend_from_slice("tree".as_bytes());
-    //     data.push(0x20u8);
-    //     data.extend_from_slice(length.to_string().as_bytes());
-    //     data.push(0x00u8);
-    //     data.extend(entries_data);
-
-    //     data
-    // }
 
 }
 
